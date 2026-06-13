@@ -1,0 +1,35 @@
+registrars:
+  - key: "resellerclub"
+    management_mode: "api"
+    enabled: false
+    settings:
+      resellerid: "{{ vault.resellerclub.reseller_id }}"
+      apikey: "{{ vault.resellerclub.api_key }}"
+      testmode: true
+
+tlds:
+  - extension: ".com"
+    management_mode: "api"
+    auto_registrar: "resellerclub"
+    dns_management: true
+    email_forwarding: true
+    id_protection: true
+    currency: "MXN"
+    register:
+      1: 279.00
+    renew:
+      1: 299.00
+    transfer:
+      1: 279.00
+
+  - extension: ".mx"
+    management_mode: "api"
+    auto_registrar: "resellerclub"
+    dns_management: true
+    email_forwarding: false
+    id_protection: false
+    currency: "MXN"
+    register:
+      1: 699.00
+    renew:
+      1: 699.00

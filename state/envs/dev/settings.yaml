@@ -1,0 +1,16 @@
+settings:
+  system:
+    CompanyName: "JMGS Hosting"
+    SystemURL: "https://billing-dev.example.com"
+    MaintenanceMode: "off"
+    DefaultNameserver1: "ns1.example.com"
+    DefaultNameserver2: "ns2.example.com"
+
+  ordering:
+    DefaultOrderFormTemplate: "standard_cart"
+    AllowDomainsTwice: "off"
+
+  automation:
+    AutoProvisionOnPayment: "on"
+    AutoSuspension: "on"
+    AutoTermination: "off"

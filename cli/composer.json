@@ -1,0 +1,10 @@
+{
+  "name": "jmgs/whmcs-state-cli",
+  "description": "WHMCS Configuration-as-Code CLI skeleton",
+  "require": {
+    "php": ">=8.1"
+  },
+  "autoload": {
+    "psr-4": { "Whmcs\": "src/" }
+  }
+}

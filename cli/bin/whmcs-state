@@ -1,0 +1,30 @@
+#!/usr/bin/env php
+<?php
+require __DIR__ . '/../src/Command/ValidateCommand.php';
+
+use Whmcs\Command\ValidateCommand;
+
+$argv = $_SERVER['argv'];
+$argc = $_SERVER['argc'];
+
+if ($argc < 2) {
+	echo "Usage: php cli/bin/whmcs-state <command> [--env=path]\n";
+	exit(1);
+}
+
+$command = $argv[1];
+$envPath = 'state/envs/dev';
+
+foreach ($argv as $arg) {
+	if (str_starts_with($arg, '--env=')) {
+		$envPath = substr($arg, 6);
+	}
+}
+
+if ($command === 'validate') {
+	$exit = ValidateCommand::run($envPath);
+	exit($exit);
+}
+
+echo "Unknown command: {$command}\n";
+exit(2);

@@ -1,0 +1,11 @@
+.env
+.env.*
+node_modules/
+playwright/storage-state/
+state/live/snapshots/
+*.log
+.DS_Store
+vendor/
+/.idea/
+/.vscode/
+cli/vendor/

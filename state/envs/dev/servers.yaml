@@ -1,0 +1,17 @@
+server_groups:
+  - key: "cpanel-mx"
+    management_mode: "ui"
+    name: "cPanel MX"
+    fill_strategy: "least_full"
+
+servers:
+  - key: "cpanel-01"
+    management_mode: "ui"
+    group_key: "cpanel-mx"
+    module: "cpanel"
+    hostname: "whm01.example.com"
+    ipaddress: "203.0.113.10"
+    username: "root"
+    secure: true
+    port: 2087
+    credentials_ref: "vault.cpanel.whm01"

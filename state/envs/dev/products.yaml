@@ -1,0 +1,30 @@
+product_groups:
+  - key: "shared-hosting"
+    management_mode: "ui"
+    name: "Shared Hosting"
+    slug: "shared-hosting"
+    headline: "Hosting administrado para sitios WordPress y corporativos"
+    orderform_template: "standard_cart"
+    allowed_gateways:
+      - "banktransfer"
+      - "stripe"
+
+products:
+  - key: "shared-starter"
+    management_mode: "api"
+    group_key: "shared-hosting"
+    type: "hostingaccount"
+    name: "Shared Starter"
+    module: "cpanel"
+    server_group_key: "cpanel-mx"
+    paytype: "recurring"
+    autosetup: "payment"
+    hidden: false
+    tax: true
+    welcome_email: "Hosting Account Welcome Email"
+    pricing:
+      MXN:
+        monthly: 149.00
+        annually: 1490.00
+    module_config:
+      package_name: "starter"

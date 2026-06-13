@@ -1,0 +1,21 @@
+gateways:
+  - key: "banktransfer"
+    management_mode: "api"
+    enabled: true
+    visible: true
+    display_name: "Transferencia bancaria"
+    settings:
+      FriendlyName: "Transferencia bancaria"
+      instructions: |
+        Banco: Banco Ejemplo
+        CLABE: 000000000000000000
+        Referencia: usar número de factura.
+
+  - key: "stripe"
+    management_mode: "api"
+    enabled: false
+    visible: true
+    display_name: "Tarjeta"
+    settings:
+      publishableKey: "{{ vault.stripe.publishable_key }}"
+      restrictedKey: "{{ vault.stripe.restricted_key }}"
