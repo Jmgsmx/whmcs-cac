@@ -11,7 +11,7 @@ class SettingsAdapterTest extends TestCase
     public function testExportLiveReturnsEmptyArrayOnError()
     {
         // Mock API that throws exception
-        $apiMock = $this->createMock(\Whmcs\Whmcs\LocalApiClient::class);
+        $apiMock = $this->createMock(\Whmcs\LocalApiClient::class);
         $apiMock->method('call')->willThrowException(new \Exception('API error'));
 
         $adapter = new SettingsAdapter($apiMock);
@@ -23,7 +23,7 @@ class SettingsAdapterTest extends TestCase
 
     public function testDiffDetectsChanges()
     {
-        $apiMock = $this->createMock(\Whmcs\Whmcs\LocalApiClient::class);
+        $apiMock = $this->createMock(\Whmcs\LocalApiClient::class);
         $adapter = new SettingsAdapter($apiMock);
 
         $desired = ['CompanyName' => 'JMGS', 'SystemURL' => 'https://example.com'];
@@ -38,7 +38,7 @@ class SettingsAdapterTest extends TestCase
 
     public function testApplyReturnsSuccessWhenNoDiff()
     {
-        $apiMock = $this->createMock(\Whmcs\Whmcs\LocalApiClient::class);
+        $apiMock = $this->createMock(\Whmcs\LocalApiClient::class);
         $adapter = new SettingsAdapter($apiMock);
 
         $plan = ['changed' => [], 'added' => [], 'removed' => []];
@@ -50,7 +50,7 @@ class SettingsAdapterTest extends TestCase
 
     public function testVerifyOkWhenStateMatches()
     {
-        $apiMock = $this->createMock(\Whmcs\Whmcs\LocalApiClient::class);
+        $apiMock = $this->createMock(\Whmcs\LocalApiClient::class);
         $apiMock->method('call')->willReturn(['settings' => ['CompanyName' => 'JMGS']]);
 
         $adapter = new SettingsAdapter($apiMock);
