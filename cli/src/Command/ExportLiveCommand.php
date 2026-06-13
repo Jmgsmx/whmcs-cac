@@ -22,7 +22,7 @@ class ExportLiveCommand
             }
 
             // Connect to WHMCS
-            $apiClient = new \Whmcs\Whmcs\LocalApiClient($whmcsRoot, 'admin');
+            $apiClient = new \Whmcs\LocalApiClient($whmcsRoot, 'admin');
 
             $liveState = [
                 'timestamp' => date('c'),

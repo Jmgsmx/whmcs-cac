@@ -50,7 +50,7 @@ class ApplyCommand
 
             // Gate 4: Export current state
             echo "Exporting live state before apply...\n";
-            $apiClient = new \Whmcs\Whmcs\LocalApiClient($whmcsRoot, 'admin');
+            $apiClient = new \Whmcs\LocalApiClient($whmcsRoot, 'admin');
 
             $liveState = ['timestamp_before' => date('c'), 'resources' => []];
             $settingsAdapter = new SettingsAdapter($apiClient);

@@ -22,7 +22,7 @@ class DiffCommand
             }
 
             // Connect to WHMCS
-            $apiClient = new \Whmcs\Whmcs\LocalApiClient($whmcsRoot, 'admin');
+            $apiClient = new \Whmcs\LocalApiClient($whmcsRoot, 'admin');
 
             $diffs = [];
             $hasChanges = false;

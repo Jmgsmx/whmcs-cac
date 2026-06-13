@@ -2,7 +2,7 @@
 
 namespace Whmcs\Adapter;
 
-use Whmcs\Whmcs\LocalApiClient;
+use Whmcs\LocalApiClient;
 
 class GatewayAdapter implements AdapterInterface
 {
