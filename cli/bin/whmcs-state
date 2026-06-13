@@ -3,6 +3,8 @@
 require __DIR__ . '/../src/Command/ValidateCommand.php';
 require __DIR__ . '/../src/Command/ExportLiveCommand.php';
 require __DIR__ . '/../src/Command/DiffCommand.php';
+require __DIR__ . '/../src/Command/ApplyCommand.php';
+require __DIR__ . '/../src/Command/DoctorCommand.php';
 require __DIR__ . '/../src/Adapter/AdapterInterface.php';
 require __DIR__ . '/../src/Adapter/Result.php';
 require __DIR__ . '/../src/Adapter/SettingsAdapter.php';
@@ -11,6 +13,8 @@ require __DIR__ . '/../src/Adapter/GatewayAdapter.php';
 use Whmcs\Command\ValidateCommand;
 use Whmcs\Command\ExportLiveCommand;
 use Whmcs\Command\DiffCommand;
+use Whmcs\Command\ApplyCommand;
+use Whmcs\Command\DoctorCommand;
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
@@ -21,10 +25,15 @@ if ($argc < 2) {
     echo "  validate --env=<path>              Validate YAML state\n";
     echo "  export-live --env=<path>           Export live state from WHMCS\n";
     echo "  diff --env=<path>                  Compare desired vs live state\n";
+    echo "  apply --env=<path> [--force]       Apply desired state (requires --force for non-dev)\n";
+    echo "  doctor --whmcs-root=<path>         Run health checks\n";
     echo "\nOptions:\n";
     echo "  --env=<path>                       Path to state environment (default: state/envs/dev)\n";
     echo "  --whmcs-root=<path>                WHMCS installation root (default: /opt/whmcs)\n";
     echo "  --resource=<type>                  Resource type: all|settings|gateways (default: all)\n";
+    echo "  --force                            Required for staging/prod apply\n";
+    echo "  --dry-run                          Show changes without applying\n";
+    echo "  --environment=<env>                Environment: dev|staging|prod (default: dev)\n";
     exit(1);
 }
 
@@ -32,6 +41,9 @@ $command = $argv[1];
 $envPath = 'state/envs/dev';
 $resource = 'all';
 $whmcsRoot = getenv('WHMCS_ROOT') ?: '/opt/whmcs';
+$force = false;
+$dryRun = false;
+$environment = 'dev';
 
 foreach ($argv as $arg) {
     if (str_starts_with($arg, '--env=')) {
@@ -42,6 +54,15 @@ foreach ($argv as $arg) {
     }
     if (str_starts_with($arg, '--whmcs-root=')) {
         $whmcsRoot = substr($arg, 13);
+    }
+    if (str_starts_with($arg, '--environment=')) {
+        $environment = substr($arg, 14);
+    }
+    if ($arg === '--force') {
+        $force = true;
+    }
+    if ($arg === '--dry-run') {
+        $dryRun = true;
     }
 }
 
@@ -57,6 +78,16 @@ if ($command === 'export-live') {
 
 if ($command === 'diff') {
     $exit = DiffCommand::run($envPath, $whmcsRoot, $resource);
+    exit($exit);
+}
+
+if ($command === 'apply') {
+    $exit = ApplyCommand::run($envPath, $whmcsRoot, $force, $dryRun, $environment);
+    exit($exit);
+}
+
+if ($command === 'doctor') {
+    $exit = DoctorCommand::run($whmcsRoot);
     exit($exit);
 }
 

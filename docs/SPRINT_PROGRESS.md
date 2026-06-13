@@ -5,15 +5,15 @@
 ### Sprint 1: Foundation
 - ✅ Repository structure created (github.com/Jmgsmx/whmcs-cac)
 - ✅ AGENTS.md with Codex governance rules
-- ✅ CI workflow template (.github/workflows/ci.yml)
+- ✅ CI workflow template (.github/workflows/ci.yml) with proper gates
 - ✅ SSH/Tailscale validation scripts (scripts/server/preflight.sh)
 - ✅ Development branch established
 
 ### Sprint 2: Discovery
 - ✅ API coverage documentation (implicit in state files)
-- ✅ export-live command skeleton (awaiting WHMCS LocalAPI connection)
+- ✅ export-live command implemented with snapshot generation
 
-### Sprint 3: CLI Core (🟡 In Progress)
+### Sprint 3: CLI Core (✅ COMPLETE)
 - ✅ validate command (ValidateCommand.php, tests)
 - ✅ Adapter pattern (AdapterInterface, ApplyResult, VerificationResult)
 - ✅ SettingsAdapter (exportLive, diff, apply, verify)
@@ -22,9 +22,11 @@
 - ✅ composer.json with test runner
 - ✅ phpunit.xml and test bootstrap
 - ✅ README.md with Quick Start guide
-- 🟡 export-live command (skeleton ready, needs WHMCS connection)
-- 🟡 diff command (design ready, implementation pending)
-- 🟡 apply command (design ready, implementation pending)
+- ✅ export-live command (fully implemented with snapshot writing)
+- ✅ diff command (fully implemented with readable output)
+- ✅ apply command (fully implemented with safety gates, manifest generation, verification)
+- ✅ doctor command (fully implemented with health checks)
+- ✅ CLI entry point routing all 5 commands
 
 ## 🔶 In Progress (Next Actions)
 
