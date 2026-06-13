@@ -3,7 +3,7 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main, staging]
+    branches: [main, development]
 
 jobs:
   validate:
@@ -24,21 +24,26 @@ jobs:
       - name: Install PHP deps
         working-directory: cli
         run: |
-          composer install --no-interaction --prefer-dist || true
+          composer install --no-interaction --prefer-dist
 
       - name: Validate YAML state
-        run: php cli/bin/whmcs-state validate --env=dev || true
+        run: |
+          php cli/bin/whmcs-state validate --env=state/envs/dev
 
-      - name: PHP tests
+      - name: PHP Unit Tests
         working-directory: cli
         run: |
-          composer test || true
+          composer test
+
+      - name: PHP Linter
+        run: |
+          find cli/src -name "*.php" -exec php -l {} \;
 
       - name: Install Playwright deps
         working-directory: playwright
         run: |
-          npm ci || true
+          npm ci
 
       - name: Playwright syntax check
         working-directory: playwright
-        run: npx playwright test --list || true
+        run: npx playwright test --list

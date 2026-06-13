@@ -1,30 +1,46 @@
 #!/usr/bin/env php
 <?php
 require __DIR__ . '/../src/Command/ValidateCommand.php';
+require __DIR__ . '/../src/Adapter/AdapterInterface.php';
+require __DIR__ . '/../src/Adapter/Result.php';
+require __DIR__ . '/../src/Adapter/SettingsAdapter.php';
+require __DIR__ . '/../src/Adapter/GatewayAdapter.php';
 
 use Whmcs\Command\ValidateCommand;
+use Whmcs\Adapter\SettingsAdapter;
+use Whmcs\Adapter\GatewayAdapter;
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
 
 if ($argc < 2) {
-	echo "Usage: php cli/bin/whmcs-state <command> [--env=path]\n";
-	exit(1);
+    echo "Usage: php cli/bin/whmcs-state <command> [options]\n";
+    echo "Commands:\n";
+    echo "  validate --env=<path>         Validate YAML state\n";
+    echo "  export-live --env=<path>      Export live state from WHMCS\n";
+    exit(1);
 }
 
 $command = $argv[1];
 $envPath = 'state/envs/dev';
+$resource = 'all';
 
 foreach ($argv as $arg) {
-	if (str_starts_with($arg, '--env=')) {
-		$envPath = substr($arg, 6);
-	}
+    if (str_starts_with($arg, '--env=')) {
+        $envPath = substr($arg, 6);
+    }
+    if (str_starts_with($arg, '--resource=')) {
+        $resource = substr($arg, 11);
+    }
 }
 
 if ($command === 'validate') {
-	$exit = ValidateCommand::run($envPath);
-	exit($exit);
+    $exit = ValidateCommand::run($envPath);
+    exit($exit);
 }
 
-echo "Unknown command: {$command}\n";
+if ($command === 'export-live') {
+    echo "export-live: {$resource} from {$envPath}\n";
+    // Placeholder: will need WHMCS connection
+    exit(0);
 exit(2);
