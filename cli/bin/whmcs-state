@@ -5,6 +5,7 @@ require __DIR__ . '/../src/Command/ExportLiveCommand.php';
 require __DIR__ . '/../src/Command/DiffCommand.php';
 require __DIR__ . '/../src/Command/ApplyCommand.php';
 require __DIR__ . '/../src/Command/DoctorCommand.php';
+require __DIR__ . '/../src/Command/RollbackCommand.php';
 require __DIR__ . '/../src/Adapter/AdapterInterface.php';
 require __DIR__ . '/../src/Adapter/Result.php';
 require __DIR__ . '/../src/Adapter/SettingsAdapter.php';
@@ -15,6 +16,7 @@ use Whmcs\Command\ExportLiveCommand;
 use Whmcs\Command\DiffCommand;
 use Whmcs\Command\ApplyCommand;
 use Whmcs\Command\DoctorCommand;
+use Whmcs\Command\RollbackCommand;
 
 $argv = $_SERVER['argv'];
 $argc = $_SERVER['argc'];
@@ -27,6 +29,7 @@ if ($argc < 2) {
     echo "  diff --env=<path>                  Compare desired vs live state\n";
     echo "  apply --env=<path> [--force]       Apply desired state (requires --force for non-dev)\n";
     echo "  doctor --whmcs-root=<path>         Run health checks\n";
+    echo "  rollback --env=<env>               Rollback to previous backup\n";
     echo "\nOptions:\n";
     echo "  --env=<path>                       Path to state environment (default: state/envs/dev)\n";
     echo "  --whmcs-root=<path>                WHMCS installation root (default: /opt/whmcs)\n";
@@ -34,6 +37,7 @@ if ($argc < 2) {
     echo "  --force                            Required for staging/prod apply\n";
     echo "  --dry-run                          Show changes without applying\n";
     echo "  --environment=<env>                Environment: dev|staging|prod (default: dev)\n";
+    echo "  --from-manifest=<file>             Rollback to state in manifest (optional)\n";
     exit(1);
 }
 
@@ -44,6 +48,7 @@ $whmcsRoot = getenv('WHMCS_ROOT') ?: '/opt/whmcs';
 $force = false;
 $dryRun = false;
 $environment = 'dev';
+$fromManifest = null;
 
 foreach ($argv as $arg) {
     if (str_starts_with($arg, '--env=')) {
@@ -57,6 +62,9 @@ foreach ($argv as $arg) {
     }
     if (str_starts_with($arg, '--environment=')) {
         $environment = substr($arg, 14);
+    }
+    if (str_starts_with($arg, '--from-manifest=')) {
+        $fromManifest = substr($arg, 15);
     }
     if ($arg === '--force') {
         $force = true;
@@ -88,6 +96,11 @@ if ($command === 'apply') {
 
 if ($command === 'doctor') {
     $exit = DoctorCommand::run($whmcsRoot);
+    exit($exit);
+}
+
+if ($command === 'rollback') {
+    $exit = RollbackCommand::run($environment, $whmcsRoot, $fromManifest);
     exit($exit);
 }
 
