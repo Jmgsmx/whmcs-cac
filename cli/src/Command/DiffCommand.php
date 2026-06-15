@@ -4,6 +4,7 @@ namespace Whmcs\Command;
 
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
+use Whmcs\State\StateLoader;
 
 class DiffCommand
 {
@@ -39,7 +40,7 @@ class DiffCommand
                 echo "Comparing settings...\n";
                 $settingsFile = "$envPath/settings.yaml";
                 if (file_exists($settingsFile)) {
-                    $desiredSettings = yaml_parse_file($settingsFile);
+                    $desiredSettings = StateLoader::normalizeSettings(StateLoader::parseFile($settingsFile));
                     $settingsAdapter = new SettingsAdapter($apiClient);
                     $liveSettings = $settingsAdapter->exportLive();
                     $diff = $settingsAdapter->diff($desiredSettings ?? [], $liveSettings);
@@ -56,7 +57,7 @@ class DiffCommand
                 echo "Comparing gateways...\n";
                 $gatewaysFile = "$envPath/gateways.yaml";
                 if (file_exists($gatewaysFile)) {
-                    $desiredGateways = yaml_parse_file($gatewaysFile);
+                    $desiredGateways = StateLoader::normalizeGateways(StateLoader::parseFile($gatewaysFile));
                     $gatewayAdapter = new GatewayAdapter($apiClient);
                     $liveGateways = $gatewayAdapter->exportLive();
                     $diff = $gatewayAdapter->diff($desiredGateways ?? [], $liveGateways);

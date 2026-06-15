@@ -5,6 +5,7 @@ namespace Whmcs\Command;
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
 use Whmcs\Adapter\ApplyResult;
+use Whmcs\State\StateLoader;
 
 class ApplyCommand
 {
@@ -179,19 +180,7 @@ class ApplyCommand
 
     private static function loadDesiredState(string $envPath): array
     {
-        $state = [];
-
-        $settingsFile = "$envPath/settings.yaml";
-        if (file_exists($settingsFile) && function_exists('yaml_parse_file')) {
-            $state['settings'] = yaml_parse_file($settingsFile);
-        }
-
-        $gatewaysFile = "$envPath/gateways.yaml";
-        if (file_exists($gatewaysFile) && function_exists('yaml_parse_file')) {
-            $state['gateways'] = yaml_parse_file($gatewaysFile);
-        }
-
-        return $state;
+        return StateLoader::loadEnv($envPath);
     }
 
     private static function countChanges(array $diffs): int
