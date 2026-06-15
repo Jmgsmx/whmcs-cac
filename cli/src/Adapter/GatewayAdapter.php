@@ -27,7 +27,6 @@ class GatewayAdapter implements AdapterInterface
             }
             return $gateways;
         } catch (\Exception $e) {
-            error_log("GatewayAdapter exportLive failed: {$e->getMessage()}");
             return [];
         }
     }

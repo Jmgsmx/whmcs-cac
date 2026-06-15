@@ -9,10 +9,4 @@
             <directory>cli/tests</directory>
         </testsuite>
     </testsuites>
-    <coverage>
-        <report>
-            <clover outputFile="coverage.xml"/>
-            <text outputFile="coverage.txt"/>
-        </report>
-    </coverage>
 </phpunit>

@@ -1,6 +1,7 @@
 .env
 .env.*
 node_modules/
+.phpunit.cache/
 playwright/storage-state/
 state/live/snapshots/
 *.log

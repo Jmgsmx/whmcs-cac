@@ -1,5 +1,10 @@
-﻿#!/usr/bin/env php
+#!/usr/bin/env php
 <?php
+$autoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoload)) {
+    require $autoload;
+}
+
 require __DIR__ . '/../src/Command/ValidateCommand.php';
 require __DIR__ . '/../src/Command/ExportLiveCommand.php';
 require __DIR__ . '/../src/Command/DiffCommand.php';

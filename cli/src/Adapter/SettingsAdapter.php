@@ -19,7 +19,6 @@ class SettingsAdapter implements AdapterInterface
             $result = $this->api->call('GetSettings');
             return $result['settings'] ?? [];
         } catch (\Exception $e) {
-            error_log("SettingsAdapter exportLive failed: {$e->getMessage()}");
             return [];
         }
     }
