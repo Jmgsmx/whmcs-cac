@@ -37,6 +37,7 @@ Set `WHMCS_ADMIN_URL` to enable live admin smoke tests. Without it, live UI test
 cd playwright
 npm run auth:save
 npm run capture:selectors
+npm run analyze:selectors
 ```
 
 See [UI selector capture runbook](docs/runbooks/ui-selector-capture.md).

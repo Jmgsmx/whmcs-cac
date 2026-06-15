@@ -49,6 +49,7 @@ With a saved session:
 set WHMCS_ADMIN_URL=https://billing-staging.example.com/admin
 set WHMCS_STORAGE_STATE=storage-state/staging-admin.json
 npm run capture:selectors
+npm run analyze:selectors
 ```
 
 ## Output
@@ -64,3 +65,5 @@ These files are ignored by Git because they describe a live admin instance.
 ## Next Step
 
 Review the captured JSON and promote stable selectors into `playwright/lib/ui-adapters.ts` before enabling any live UI apply flow.
+
+Run `npm run analyze:selectors` first. It fails if the snapshots look like login pages or if the expected admin path was not captured.

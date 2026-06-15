@@ -7,6 +7,7 @@
   "scripts": {
     "test": "playwright test",
     "auth:save": "node scripts/save-storage-state.js",
-    "capture:selectors": "playwright test tests/selector-capture.spec.ts"
+    "capture:selectors": "playwright test tests/selector-capture.spec.ts",
+    "analyze:selectors": "node scripts/analyze-selector-artifacts.js"
   }
 }
