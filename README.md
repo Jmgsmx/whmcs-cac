@@ -32,6 +32,14 @@ npm test
 
 Set `WHMCS_ADMIN_URL` to enable live admin smoke tests. Without it, live UI tests are skipped and adapter contract tests still run.
 
+### Capture WHMCS admin selectors
+```bash
+cd playwright
+npm run capture:selectors
+```
+
+See [UI selector capture runbook](docs/runbooks/ui-selector-capture.md).
+
 ## Project Structure
 - `state/envs/{dev,staging,prod}/` — YAML state declarations
 - `cli/` — PHP CLI tool (validate, export-live, diff, apply, doctor)

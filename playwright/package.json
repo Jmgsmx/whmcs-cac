@@ -5,6 +5,7 @@
     "@playwright/test": "^1.40.0"
   },
   "scripts": {
-    "test": "playwright test"
+    "test": "playwright test",
+    "capture:selectors": "playwright test tests/selector-capture.spec.ts"
   }
 }
