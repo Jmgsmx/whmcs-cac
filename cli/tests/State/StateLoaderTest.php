@@ -65,6 +65,9 @@ class StateLoaderTest extends TestCase
         $this->assertArrayHasKey('products', $state);
         $this->assertArrayHasKey('registrars', $state);
         $this->assertArrayHasKey('tlds', $state);
+        $this->assertArrayHasKey('product_groups', $state);
+        $this->assertArrayHasKey('server_groups', $state);
+        $this->assertArrayHasKey('servers', $state);
         $this->assertSame('JMGS Hosting', $state['settings']['CompanyName']);
         $this->assertArrayHasKey('banktransfer', $state['gateways']);
         $this->assertArrayHasKey('stripe', $state['gateways']);
@@ -72,6 +75,9 @@ class StateLoaderTest extends TestCase
         $this->assertSame('shared-starter', $state['products']['shared-starter']['slug']);
         $this->assertArrayHasKey('resellerclub', $state['registrars']);
         $this->assertArrayHasKey('.com', $state['tlds']);
+        $this->assertArrayHasKey('shared-hosting', $state['product_groups']);
+        $this->assertArrayHasKey('cpanel-mx', $state['server_groups']);
+        $this->assertArrayHasKey('cpanel-01', $state['servers']);
     }
 
     public function testNormalizeProductsConvertsListToProductMap(): void
@@ -140,5 +146,59 @@ class StateLoaderTest extends TestCase
                 'register' => [1 => 279.0],
             ],
         ], $tlds);
+    }
+
+    public function testNormalizeProductGroupsConvertsListToGroupMap(): void
+    {
+        $groups = StateLoader::normalizeProductGroups([
+            'product_groups' => [
+                [
+                    'key' => 'shared-hosting',
+                    'management_mode' => 'ui',
+                    'name' => 'Shared Hosting',
+                ],
+            ],
+        ]);
+
+        $this->assertSame([
+            'shared-hosting' => [
+                'management_mode' => 'ui',
+                'name' => 'Shared Hosting',
+            ],
+        ], $groups);
+    }
+
+    public function testNormalizeServerGroupsAndServersConvertListsToMaps(): void
+    {
+        $document = [
+            'server_groups' => [
+                [
+                    'key' => 'cpanel-mx',
+                    'management_mode' => 'ui',
+                    'name' => 'cPanel MX',
+                ],
+            ],
+            'servers' => [
+                [
+                    'key' => 'cpanel-01',
+                    'management_mode' => 'ui',
+                    'hostname' => 'whm01.example.com',
+                ],
+            ],
+        ];
+
+        $this->assertSame([
+            'cpanel-mx' => [
+                'management_mode' => 'ui',
+                'name' => 'cPanel MX',
+            ],
+        ], StateLoader::normalizeServerGroups($document));
+
+        $this->assertSame([
+            'cpanel-01' => [
+                'management_mode' => 'ui',
+                'hostname' => 'whm01.example.com',
+            ],
+        ], StateLoader::normalizeServers($document));
     }
 }

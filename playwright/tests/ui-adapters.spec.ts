@@ -1,0 +1,108 @@
+import { expect, test } from '@playwright/test';
+import {
+  buildUiPlans,
+  ProductGroupUiAdapter,
+  ServerGroupUiAdapter,
+  ServerUiAdapter,
+} from '../lib/ui-adapters';
+
+const adminUrl = 'https://billing.example.com/admin/';
+
+test('server group adapter builds a dry-run plan', async () => {
+  const adapter = new ServerGroupUiAdapter({ adminUrl });
+
+  const plan = await adapter.apply(
+    {
+      management_mode: 'ui',
+      name: 'cPanel MX',
+      fill_strategy: 'least_full',
+    },
+    'cpanel-mx',
+  );
+
+  expect(plan).toEqual({
+    resourceType: 'server_group',
+    key: 'cpanel-mx',
+    action: 'ensure',
+    url: 'https://billing.example.com/admin/configservers.php',
+    fields: {
+      name: 'cPanel MX',
+      fill_strategy: 'least_full',
+    },
+  });
+});
+
+test('server adapter keeps credential references out of logs except the reference key', () => {
+  const adapter = new ServerUiAdapter({ adminUrl });
+  const plan = adapter.plan(
+    {
+      management_mode: 'ui',
+      group_key: 'cpanel-mx',
+      module: 'cpanel',
+      hostname: 'whm01.example.com',
+      ipaddress: '203.0.113.10',
+      username: 'root',
+      secure: true,
+      port: 2087,
+      credentials_ref: 'vault.cpanel.whm01',
+    },
+    'cpanel-01',
+  );
+
+  expect(plan.url).toBe('https://billing.example.com/admin/configservers.php');
+  expect(plan.fields).toMatchObject({
+    group_key: 'cpanel-mx',
+    credentials_ref: 'vault.cpanel.whm01',
+  });
+  expect(JSON.stringify(plan)).not.toContain('password');
+});
+
+test('product group adapter builds a dry-run plan', () => {
+  const adapter = new ProductGroupUiAdapter({ adminUrl });
+  const plan = adapter.plan(
+    {
+      management_mode: 'ui',
+      name: 'Shared Hosting',
+      slug: 'shared-hosting',
+      headline: 'Hosting administrado',
+      orderform_template: 'standard_cart',
+      allowed_gateways: ['banktransfer', 'stripe'],
+    },
+    'shared-hosting',
+  );
+
+  expect(plan).toMatchObject({
+    resourceType: 'product_group',
+    key: 'shared-hosting',
+    url: 'https://billing.example.com/admin/configproducts.php',
+  });
+  expect(plan.fields.allowed_gateways).toEqual(['banktransfer', 'stripe']);
+});
+
+test('buildUiPlans includes only ui-managed resources', () => {
+  const plans = buildUiPlans(
+    {
+      server_groups: {
+        'cpanel-mx': { management_mode: 'ui', name: 'cPanel MX' },
+      },
+      servers: {
+        'cpanel-01': { management_mode: 'ui', hostname: 'whm01.example.com' },
+      },
+      product_groups: {
+        'shared-hosting': { management_mode: 'ui', name: 'Shared Hosting' },
+        ignored: { management_mode: 'api', name: 'Ignored' },
+      },
+    },
+    adminUrl,
+  );
+
+  expect(plans.map((plan) => plan.key)).toEqual(['cpanel-mx', 'cpanel-01', 'shared-hosting']);
+});
+
+test('live apply is guarded until stable selectors are recorded', async () => {
+  const adapter = new ProductGroupUiAdapter({ adminUrl, liveApply: true });
+
+  await expect(adapter.apply({ name: 'Shared Hosting' }, 'shared-hosting')).rejects.toThrow(
+    /Live UI apply is not implemented/,
+  );
+});

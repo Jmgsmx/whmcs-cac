@@ -85,9 +85,9 @@ Priority: `api` adapters first
 
 ### UI Mode Resources
 Priority: `ui` adapters after all APIs
-- ServerAdapter (pending)
-- ProductGroupAdapter (pending)
-- Playlist test suite required
+- ServerAdapter (initial: Playwright dry-run plan builder; live apply blocked until selectors are recorded)
+- ProductGroupAdapter (initial: Playwright dry-run plan builder; live apply blocked until selectors are recorded)
+- Playwright test suite required
 
 ### Filesystem Resources
 Handled separately by deployment pipeline

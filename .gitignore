@@ -3,6 +3,8 @@
 node_modules/
 .phpunit.cache/
 playwright/storage-state/
+playwright/test-results/
+playwright/playwright-report/
 state/live/snapshots/
 *.log
 .DS_Store

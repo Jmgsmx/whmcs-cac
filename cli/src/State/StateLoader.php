@@ -22,7 +22,9 @@ class StateLoader
 
         $productsFile = self::path($envPath, 'products.yaml');
         if (file_exists($productsFile)) {
-            $state['products'] = self::normalizeProducts(self::parseFile($productsFile));
+            $products = self::parseFile($productsFile);
+            $state['product_groups'] = self::normalizeProductGroups($products);
+            $state['products'] = self::normalizeProducts($products);
         }
 
         $domainsFile = self::path($envPath, 'domains.yaml');
@@ -30,6 +32,13 @@ class StateLoader
             $domains = self::parseFile($domainsFile);
             $state['registrars'] = self::normalizeRegistrars($domains);
             $state['tlds'] = self::normalizeTlds($domains);
+        }
+
+        $serversFile = self::path($envPath, 'servers.yaml');
+        if (file_exists($serversFile)) {
+            $servers = self::parseFile($serversFile);
+            $state['server_groups'] = self::normalizeServerGroups($servers);
+            $state['servers'] = self::normalizeServers($servers);
         }
 
         return $state;
@@ -113,6 +122,24 @@ class StateLoader
         return $normalized;
     }
 
+    public static function normalizeProductGroups(array $document): array
+    {
+        $groups = $document['product_groups'] ?? $document;
+        return self::normalizeKeyedList($groups);
+    }
+
+    public static function normalizeServerGroups(array $document): array
+    {
+        $groups = $document['server_groups'] ?? $document;
+        return self::normalizeKeyedList($groups);
+    }
+
+    public static function normalizeServers(array $document): array
+    {
+        $servers = $document['servers'] ?? $document;
+        return self::normalizeKeyedList($servers);
+    }
+
     public static function normalizeRegistrars(array $document): array
     {
         $registrars = $document['registrars'] ?? $document;
@@ -177,6 +204,27 @@ class StateLoader
     {
         $extension = strtolower(trim($extension));
         return str_starts_with($extension, '.') ? $extension : '.' . $extension;
+    }
+
+    private static function normalizeKeyedList(array $items): array
+    {
+        $normalized = [];
+
+        foreach ($items as $key => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $itemKey = $item['key'] ?? (is_string($key) ? $key : null);
+            if ($itemKey === null || $itemKey === '') {
+                continue;
+            }
+
+            $normalized[$itemKey] = $item;
+            unset($normalized[$itemKey]['key']);
+        }
+
+        return $normalized;
     }
 
     private static function path(string $envPath, string $file): string
