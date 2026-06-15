@@ -31,6 +31,12 @@ class ApplyCommand
         string $environment = 'dev'
     ): int {
         try {
+            // Gate 0: explicit read-only mode for production discovery.
+            if (self::isReadOnlyMode()) {
+                error_log('Error: WHMCS_CAC_READ_ONLY is enabled; apply is blocked');
+                return 1;
+            }
+
             // Gate 1: --force required
             if (!$force && $environment !== 'dev') {
                 error_log("Error: --force flag required for {$environment} environment");
@@ -262,6 +268,12 @@ class ApplyCommand
     private static function loadDesiredState(string $envPath): array
     {
         return StateLoader::loadEnv($envPath);
+    }
+
+    private static function isReadOnlyMode(): bool
+    {
+        $value = strtolower((string)getenv('WHMCS_CAC_READ_ONLY'));
+        return in_array($value, ['1', 'true', 'yes', 'on'], true);
     }
 
     private static function countChanges(array $diffs): int

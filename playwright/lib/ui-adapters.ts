@@ -40,6 +40,10 @@ abstract class BaseUiAdapter {
       return plan;
     }
 
+    if (isReadOnlyMode()) {
+      throw new Error('WHMCS_UI_READ_ONLY is enabled; live UI apply is blocked');
+    }
+
     const manifest = loadSelectorManifest();
     return {
       ...plan,
@@ -137,6 +141,10 @@ export function buildUiPlans(
   }
 
   return plans;
+}
+
+function isReadOnlyMode(): boolean {
+  return ['1', 'true', 'yes', 'on'].includes(String(process.env.WHMCS_UI_READ_ONLY || '').toLowerCase());
 }
 
 function pick(resource: UiResource, fields: string[]): Record<string, unknown> {

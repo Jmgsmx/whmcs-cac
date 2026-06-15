@@ -54,6 +54,7 @@ See [UI selector capture runbook](docs/runbooks/ui-selector-capture.md).
 - [Blueprint](docs/blueprint/WHMCS_Configuration_As_Code_Workstation_Blueprint.md)
 - [AGENTS.md](AGENTS.md) — AI coding rules
 - [Runbooks](docs/runbooks/)
+- [Production read-only discovery](docs/runbooks/production-readonly-discovery.md)
 
 ## Development
 - Branch: `development` for feature work

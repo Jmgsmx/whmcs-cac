@@ -110,6 +110,24 @@ test('live apply is guarded until stable selectors are recorded', async () => {
   );
 });
 
+test('live apply is blocked in explicit read-only mode', async () => {
+  const previousReadOnly = process.env.WHMCS_UI_READ_ONLY;
+  process.env.WHMCS_UI_READ_ONLY = '1';
+
+  try {
+    const adapter = new ProductGroupUiAdapter({ adminUrl, liveApply: true });
+    await expect(adapter.apply({ name: 'Shared Hosting' }, 'shared-hosting')).rejects.toThrow(
+      /WHMCS_UI_READ_ONLY is enabled/,
+    );
+  } finally {
+    if (previousReadOnly === undefined) {
+      delete process.env.WHMCS_UI_READ_ONLY;
+    } else {
+      process.env.WHMCS_UI_READ_ONLY = previousReadOnly;
+    }
+  }
+});
+
 test('live apply attaches selectors when a manifest is configured', async () => {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whmcs-selectors-'));
   const manifestPath = path.join(tmpDir, 'manifest.json');
