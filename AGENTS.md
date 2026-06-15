@@ -10,6 +10,7 @@ Actúa como Senior PHP Automation Engineer especializado en WHMCS self-hosted, L
 - Todo `apply` debe producir release manifest.
 - No imprimir secrets en logs.
 - No modificar archivos core de WHMCS.
+- Usar `WHMCS_CAC_READ_ONLY=1` y `WHMCS_UI_READ_ONLY=1` al explorar instancias reales/producción.
 - Preferir Local API sobre External API.
 - Preferir Playwright solo para recursos sin API pública suficiente.
 

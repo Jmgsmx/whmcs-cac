@@ -1,7 +1,13 @@
 .env
 .env.*
+!.env.example
 node_modules/
+.phpunit.cache/
 playwright/storage-state/
+playwright/selector-artifacts/
+playwright/selectors/ui-selector-manifest.json
+playwright/test-results/
+playwright/playwright-report/
 state/live/snapshots/
 *.log
 .DS_Store

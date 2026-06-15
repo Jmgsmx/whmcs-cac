@@ -24,6 +24,18 @@ class ValidateCommand
             return 0;
         }
 
+        if (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+            try {
+                \Symfony\Component\Yaml\Yaml::parseFile($file);
+            } catch (\Symfony\Component\Yaml\Exception\ParseException $exception) {
+                echo "YAML parse error: {$file}: {$exception->getMessage()}\n";
+                return 3;
+            }
+
+            echo "YAML ok: {$file}\n";
+            return 0;
+        }
+
         echo "File exists: {$file} (no YAML parser available for deep validation)\n";
         return 0;
     }

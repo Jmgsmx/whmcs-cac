@@ -2,7 +2,7 @@
 
 namespace Whmcs;
 
-final class LocalApiClient
+class LocalApiClient
 {
     private string $whmcsRoot;
     private string $adminUsername;

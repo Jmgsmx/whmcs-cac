@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "notes": "Copy to ui-selector-manifest.json after reviewing selector-artifacts from staging. Keep selectors stable and admin-version-specific.",
+  "resources": {
+    "server_group": {
+      "page": "configservers.php",
+      "form": "form#exampleServerGroupForm",
+      "submit": "button[name=\"save\"]",
+      "fields": {
+        "name": "input[name=\"name\"]",
+        "fill_strategy": "select[name=\"filltype\"]"
+      }
+    },
+    "server": {
+      "page": "configservers.php",
+      "form": "form#exampleServerForm",
+      "submit": "button[name=\"save\"]",
+      "fields": {
+        "group_key": "select[name=\"servergroup\"]",
+        "module": "select[name=\"type\"]",
+        "hostname": "input[name=\"hostname\"]",
+        "ipaddress": "input[name=\"ipaddress\"]",
+        "username": "input[name=\"username\"]",
+        "secure": "input[name=\"secure\"]",
+        "port": "input[name=\"port\"]"
+      }
+    },
+    "product_group": {
+      "page": "configproducts.php",
+      "form": "form#exampleProductGroupForm",
+      "submit": "button[name=\"save\"]",
+      "fields": {
+        "name": "input[name=\"name\"]",
+        "slug": "input[name=\"slug\"]",
+        "headline": "input[name=\"headline\"]",
+        "orderform_template": "select[name=\"orderfrmtpl\"]"
+      }
+    }
+  }
+}
