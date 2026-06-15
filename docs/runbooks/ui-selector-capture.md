@@ -23,6 +23,19 @@ cd playwright
 npm install
 ```
 
+Create a local authenticated storage state:
+
+```bash
+set WHMCS_ADMIN_URL=https://billing-staging.example.com/admin
+npm run auth:save
+```
+
+The browser opens visibly. Complete WHMCS admin login, then return to the terminal and press Enter. The default storage state path is:
+
+```text
+playwright/storage-state/staging-admin.json
+```
+
 Without a saved session, the capture may record the login page or redirect:
 
 ```bash
