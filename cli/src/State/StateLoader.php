@@ -25,6 +25,13 @@ class StateLoader
             $state['products'] = self::normalizeProducts(self::parseFile($productsFile));
         }
 
+        $domainsFile = self::path($envPath, 'domains.yaml');
+        if (file_exists($domainsFile)) {
+            $domains = self::parseFile($domainsFile);
+            $state['registrars'] = self::normalizeRegistrars($domains);
+            $state['tlds'] = self::normalizeTlds($domains);
+        }
+
         return $state;
     }
 
@@ -104,6 +111,72 @@ class StateLoader
         }
 
         return $normalized;
+    }
+
+    public static function normalizeRegistrars(array $document): array
+    {
+        $registrars = $document['registrars'] ?? $document;
+        $normalized = [];
+
+        foreach ($registrars as $key => $registrar) {
+            if (!is_array($registrar)) {
+                continue;
+            }
+
+            $registrarKey = $registrar['key'] ?? (is_string($key) ? $key : null);
+            if ($registrarKey === null || $registrarKey === '') {
+                continue;
+            }
+
+            $normalized[$registrarKey] = [
+                'enabled' => (bool)($registrar['enabled'] ?? false),
+            ];
+
+            if (isset($registrar['settings'])) {
+                $normalized[$registrarKey]['settings'] = $registrar['settings'];
+            }
+        }
+
+        return $normalized;
+    }
+
+    public static function normalizeTlds(array $document): array
+    {
+        $tlds = $document['tlds'] ?? $document;
+        $normalized = [];
+
+        foreach ($tlds as $key => $tld) {
+            if (!is_array($tld)) {
+                continue;
+            }
+
+            $extension = $tld['extension'] ?? (is_string($key) ? $key : null);
+            if ($extension === null || $extension === '') {
+                continue;
+            }
+
+            $extension = self::normalizeExtension($extension);
+            $normalized[$extension] = [
+                'extension' => $extension,
+                'dns_management' => (bool)($tld['dns_management'] ?? false),
+                'email_forwarding' => (bool)($tld['email_forwarding'] ?? false),
+                'id_protection' => (bool)($tld['id_protection'] ?? false),
+            ];
+
+            foreach (['auto_registrar', 'currency', 'register', 'renew', 'transfer'] as $field) {
+                if (isset($tld[$field])) {
+                    $normalized[$extension][$field] = $tld[$field];
+                }
+            }
+        }
+
+        return $normalized;
+    }
+
+    private static function normalizeExtension(string $extension): string
+    {
+        $extension = strtolower(trim($extension));
+        return str_starts_with($extension, '.') ? $extension : '.' . $extension;
     }
 
     private static function path(string $envPath, string $file): string

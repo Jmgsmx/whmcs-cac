@@ -80,8 +80,8 @@ Priority: `api` adapters first
 - SettingsAdapter ✅
 - GatewayAdapter ✅
 - ProductAdapter (initial: GetProducts export/diff/verify, AddProduct create-only when WHMCS IDs are resolved)
-- RegistrarAdapter (pending)
-- TldAdapter (pending)
+- RegistrarAdapter (initial: GetRegistrars export/diff/verify, read-only apply guard)
+- TldAdapter (initial: GetTLDPricing export/diff/verify, CreateOrUpdateTLD apply)
 
 ### UI Mode Resources
 Priority: `ui` adapters after all APIs

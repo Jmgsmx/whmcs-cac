@@ -5,6 +5,8 @@ namespace Whmcs\Command;
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
 use Whmcs\Adapter\ProductAdapter;
+use Whmcs\Adapter\RegistrarAdapter;
+use Whmcs\Adapter\TldAdapter;
 use Whmcs\Adapter\ApplyResult;
 use Whmcs\State\StateLoader;
 
@@ -58,9 +60,13 @@ class ApplyCommand
             $settingsAdapter = new SettingsAdapter($apiClient);
             $gatewayAdapter = new GatewayAdapter($apiClient);
             $productAdapter = new ProductAdapter($apiClient);
+            $registrarAdapter = new RegistrarAdapter($apiClient);
+            $tldAdapter = new TldAdapter($apiClient);
             $liveState['resources']['settings'] = $settingsAdapter->exportLive();
             $liveState['resources']['gateways'] = $gatewayAdapter->exportLive();
             $liveState['resources']['products'] = $productAdapter->exportLive();
+            $liveState['resources']['registrars'] = $registrarAdapter->exportLive();
+            $liveState['resources']['tlds'] = $tldAdapter->exportLive();
 
             // Gate 5: Load desired state
             $desiredState = self::loadDesiredState($envPath);
@@ -83,6 +89,14 @@ class ApplyCommand
 
             if (!empty($desiredState['products'])) {
                 $diffs['products'] = $productAdapter->diff($desiredState['products'], $liveState['resources']['products'] ?? []);
+            }
+
+            if (!empty($desiredState['registrars'])) {
+                $diffs['registrars'] = $registrarAdapter->diff($desiredState['registrars'], $liveState['resources']['registrars'] ?? []);
+            }
+
+            if (!empty($desiredState['tlds'])) {
+                $diffs['tlds'] = $tldAdapter->diff($desiredState['tlds'], $liveState['resources']['tlds'] ?? []);
             }
 
             // Show diff summary
@@ -137,9 +151,29 @@ class ApplyCommand
             if (!empty($diffs['products'])) {
                 $result = $productAdapter->apply($diffs['products']);
                 $results['products'] = $result;
-                echo ($result->success ? 'âœ“' : 'âœ—') . " Products: {$result->message}\n";
+                echo ($result->success ? '[OK]' : '[FAIL]') . " Products: {$result->message}\n";
                 if (!$result->success) {
                     error_log("Product apply failed: " . json_encode($result->errors));
+                    return 1;
+                }
+            }
+
+            if (!empty($diffs['registrars'])) {
+                $result = $registrarAdapter->apply($diffs['registrars']);
+                $results['registrars'] = $result;
+                echo ($result->success ? '[OK]' : '[FAIL]') . " Registrars: {$result->message}\n";
+                if (!$result->success) {
+                    error_log("Registrar apply failed: " . json_encode($result->errors));
+                    return 1;
+                }
+            }
+
+            if (!empty($diffs['tlds'])) {
+                $result = $tldAdapter->apply($diffs['tlds']);
+                $results['tlds'] = $result;
+                echo ($result->success ? '[OK]' : '[FAIL]') . " TLDs: {$result->message}\n";
+                if (!$result->success) {
+                    error_log("TLD apply failed: " . json_encode($result->errors));
                     return 1;
                 }
             }
@@ -171,9 +205,29 @@ class ApplyCommand
             if (!empty($desiredState['products'])) {
                 $verify = $productAdapter->verify($desiredState['products']);
                 $verifyResults['products'] = $verify;
-                echo ($verify->valid ? 'âœ“' : 'âœ—') . " Products verified\n";
+                echo ($verify->valid ? '[OK]' : '[FAIL]') . " Products verified\n";
                 if (!$verify->valid) {
                     error_log("Product verification failed: {$verify->message}");
+                    return 1;
+                }
+            }
+
+            if (!empty($desiredState['registrars'])) {
+                $verify = $registrarAdapter->verify($desiredState['registrars']);
+                $verifyResults['registrars'] = $verify;
+                echo ($verify->valid ? '[OK]' : '[FAIL]') . " Registrars verified\n";
+                if (!$verify->valid) {
+                    error_log("Registrar verification failed: {$verify->message}");
+                    return 1;
+                }
+            }
+
+            if (!empty($desiredState['tlds'])) {
+                $verify = $tldAdapter->verify($desiredState['tlds']);
+                $verifyResults['tlds'] = $verify;
+                echo ($verify->valid ? '[OK]' : '[FAIL]') . " TLDs verified\n";
+                if (!$verify->valid) {
+                    error_log("TLD verification failed: {$verify->message}");
                     return 1;
                 }
             }

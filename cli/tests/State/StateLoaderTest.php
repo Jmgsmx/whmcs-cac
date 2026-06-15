@@ -63,11 +63,15 @@ class StateLoaderTest extends TestCase
         $this->assertArrayHasKey('settings', $state);
         $this->assertArrayHasKey('gateways', $state);
         $this->assertArrayHasKey('products', $state);
+        $this->assertArrayHasKey('registrars', $state);
+        $this->assertArrayHasKey('tlds', $state);
         $this->assertSame('JMGS Hosting', $state['settings']['CompanyName']);
         $this->assertArrayHasKey('banktransfer', $state['gateways']);
         $this->assertArrayHasKey('stripe', $state['gateways']);
         $this->assertArrayHasKey('shared-starter', $state['products']);
         $this->assertSame('shared-starter', $state['products']['shared-starter']['slug']);
+        $this->assertArrayHasKey('resellerclub', $state['registrars']);
+        $this->assertArrayHasKey('.com', $state['tlds']);
     }
 
     public function testNormalizeProductsConvertsListToProductMap(): void
@@ -89,5 +93,52 @@ class StateLoaderTest extends TestCase
                 'slug' => 'shared-starter',
             ],
         ], $products);
+    }
+
+    public function testNormalizeRegistrarsConvertsListToRegistrarMap(): void
+    {
+        $registrars = StateLoader::normalizeRegistrars([
+            'registrars' => [
+                [
+                    'key' => 'resellerclub',
+                    'enabled' => false,
+                    'settings' => ['testmode' => true],
+                ],
+            ],
+        ]);
+
+        $this->assertSame([
+            'resellerclub' => [
+                'enabled' => false,
+                'settings' => ['testmode' => true],
+            ],
+        ], $registrars);
+    }
+
+    public function testNormalizeTldsConvertsListToExtensionMap(): void
+    {
+        $tlds = StateLoader::normalizeTlds([
+            'tlds' => [
+                [
+                    'extension' => 'COM',
+                    'dns_management' => true,
+                    'email_forwarding' => false,
+                    'id_protection' => true,
+                    'currency' => 'MXN',
+                    'register' => [1 => 279.0],
+                ],
+            ],
+        ]);
+
+        $this->assertSame([
+            '.com' => [
+                'extension' => '.com',
+                'dns_management' => true,
+                'email_forwarding' => false,
+                'id_protection' => true,
+                'currency' => 'MXN',
+                'register' => [1 => 279.0],
+            ],
+        ], $tlds);
     }
 }

@@ -5,13 +5,15 @@ namespace Whmcs\Command;
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
 use Whmcs\Adapter\ProductAdapter;
+use Whmcs\Adapter\RegistrarAdapter;
+use Whmcs\Adapter\TldAdapter;
 
 class ExportLiveCommand
 {
     /**
      * Export live state from WHMCS into JSON snapshot.
      * 
-     * Usage: php cli/bin/whmcs-state export-live --env=<path> [--resource=all|settings|gateways|products]
+     * Usage: php cli/bin/whmcs-state export-live --env=<path> [--resource=all|settings|gateways|products|registrars|tlds]
      */
     public static function run(string $whmcsRoot, string $resource = 'all'): int
     {
@@ -49,6 +51,20 @@ class ExportLiveCommand
                 echo "Exporting products...\n";
                 $productAdapter = new ProductAdapter($apiClient);
                 $liveState['resources']['products'] = $productAdapter->exportLive();
+            }
+
+            // Export Registrars
+            if ($resource === 'all' || $resource === 'registrars') {
+                echo "Exporting registrars...\n";
+                $registrarAdapter = new RegistrarAdapter($apiClient);
+                $liveState['resources']['registrars'] = $registrarAdapter->exportLive();
+            }
+
+            // Export TLDs
+            if ($resource === 'all' || $resource === 'tlds') {
+                echo "Exporting TLD pricing...\n";
+                $tldAdapter = new TldAdapter($apiClient);
+                $liveState['resources']['tlds'] = $tldAdapter->exportLive();
             }
 
             // Write to state/live/snapshots/{timestamp}.json

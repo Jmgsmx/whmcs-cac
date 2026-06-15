@@ -5,6 +5,8 @@ namespace Whmcs\Command;
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
 use Whmcs\Adapter\ProductAdapter;
+use Whmcs\Adapter\RegistrarAdapter;
+use Whmcs\Adapter\TldAdapter;
 use Whmcs\State\StateLoader;
 
 class DiffCommand
@@ -12,7 +14,7 @@ class DiffCommand
     /**
      * Compare desired state (YAML) with live state (WHMCS).
      * 
-     * Usage: php cli/bin/whmcs-state diff --env=<path> [--resource=all|settings|gateways|products]
+     * Usage: php cli/bin/whmcs-state diff --env=<path> [--resource=all|settings|gateways|products|registrars|tlds]
      */
     public static function run(string $envPath, string $whmcsRoot, string $resource = 'all'): int
     {
@@ -83,6 +85,40 @@ class DiffCommand
                     if (!empty($diff['changed']) || !empty($diff['added']) || !empty($diff['removed'])) {
                         $diffs['products'] = $diff;
                         $hasChanges = true;
+                    }
+                }
+            }
+
+            // Check Registrars and TLDs
+            if ($resource === 'all' || $resource === 'registrars' || $resource === 'tlds') {
+                $domainsFile = "$envPath/domains.yaml";
+                if (file_exists($domainsFile)) {
+                    $domains = StateLoader::parseFile($domainsFile);
+
+                    if ($resource === 'all' || $resource === 'registrars') {
+                        echo "Comparing registrars...\n";
+                        $desiredRegistrars = StateLoader::normalizeRegistrars($domains);
+                        $registrarAdapter = new RegistrarAdapter($apiClient);
+                        $liveRegistrars = $registrarAdapter->exportLive();
+                        $diff = $registrarAdapter->diff($desiredRegistrars, $liveRegistrars);
+
+                        if (!empty($diff['changed']) || !empty($diff['added']) || !empty($diff['removed'])) {
+                            $diffs['registrars'] = $diff;
+                            $hasChanges = true;
+                        }
+                    }
+
+                    if ($resource === 'all' || $resource === 'tlds') {
+                        echo "Comparing TLDs...\n";
+                        $desiredTlds = StateLoader::normalizeTlds($domains);
+                        $tldAdapter = new TldAdapter($apiClient);
+                        $liveTlds = $tldAdapter->exportLive();
+                        $diff = $tldAdapter->diff($desiredTlds, $liveTlds);
+
+                        if (!empty($diff['changed']) || !empty($diff['added']) || !empty($diff['removed'])) {
+                            $diffs['tlds'] = $diff;
+                            $hasChanges = true;
+                        }
                     }
                 }
             }

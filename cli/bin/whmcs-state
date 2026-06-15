@@ -38,7 +38,7 @@ if ($argc < 2) {
     echo "\nOptions:\n";
     echo "  --env=<path>                       Path to state environment (default: state/envs/dev)\n";
     echo "  --whmcs-root=<path>                WHMCS installation root (default: /opt/whmcs)\n";
-    echo "  --resource=<type>                  Resource type: all|settings|gateways|products (default: all)\n";
+    echo "  --resource=<type>                  Resource type: all|settings|gateways|products|registrars|tlds (default: all)\n";
     echo "  --force                            Required for staging/prod apply\n";
     echo "  --dry-run                          Show changes without applying\n";
     echo "  --environment=<env>                Environment: dev|staging|prod (default: dev)\n";
