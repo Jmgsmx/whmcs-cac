@@ -1,4 +1,7 @@
 import { expect, test } from '@playwright/test';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {
   buildUiPlans,
   ProductGroupUiAdapter,
@@ -103,6 +106,49 @@ test('live apply is guarded until stable selectors are recorded', async () => {
   const adapter = new ProductGroupUiAdapter({ adminUrl, liveApply: true });
 
   await expect(adapter.apply({ name: 'Shared Hosting' }, 'shared-hosting')).rejects.toThrow(
-    /Live UI apply is not implemented/,
+    /UI selector manifest not found/,
   );
+});
+
+test('live apply attaches selectors when a manifest is configured', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'whmcs-selectors-'));
+  const manifestPath = path.join(tmpDir, 'manifest.json');
+  fs.writeFileSync(manifestPath, JSON.stringify({
+    version: 1,
+    resources: {
+      server_group: {
+        page: 'configservers.php',
+        form: 'form#serverGroup',
+        submit: 'button[name="save"]',
+        fields: { name: 'input[name="name"]' },
+      },
+      server: {
+        page: 'configservers.php',
+        form: 'form#server',
+        submit: 'button[name="save"]',
+        fields: { hostname: 'input[name="hostname"]' },
+      },
+      product_group: {
+        page: 'configproducts.php',
+        form: 'form#productGroup',
+        submit: 'button[name="save"]',
+        fields: { name: 'input[name="name"]' },
+      },
+    },
+  }));
+
+  const previousManifest = process.env.WHMCS_UI_SELECTOR_MANIFEST;
+  process.env.WHMCS_UI_SELECTOR_MANIFEST = manifestPath;
+  try {
+    const adapter = new ProductGroupUiAdapter({ adminUrl, liveApply: true });
+    const plan = await adapter.apply({ name: 'Shared Hosting' }, 'shared-hosting');
+
+    expect(plan.selectors?.form).toBe('form#productGroup');
+  } finally {
+    if (previousManifest === undefined) {
+      delete process.env.WHMCS_UI_SELECTOR_MANIFEST;
+    } else {
+      process.env.WHMCS_UI_SELECTOR_MANIFEST = previousManifest;
+    }
+  }
 });

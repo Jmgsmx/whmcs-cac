@@ -67,3 +67,17 @@ These files are ignored by Git because they describe a live admin instance.
 Review the captured JSON and promote stable selectors into `playwright/lib/ui-adapters.ts` before enabling any live UI apply flow.
 
 Run `npm run analyze:selectors` first. It fails if the snapshots look like login pages or if the expected admin path was not captured.
+
+After review, copy the example manifest and replace placeholder selectors with stable selectors from staging:
+
+```bash
+copy selectors\ui-selector-manifest.example.json selectors\ui-selector-manifest.json
+```
+
+Then set the manifest path for guarded live UI planning:
+
+```bash
+set WHMCS_UI_SELECTOR_MANIFEST=selectors/ui-selector-manifest.json
+```
+
+The real manifest is ignored by Git until selectors have been reviewed for the target WHMCS version.

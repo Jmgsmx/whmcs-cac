@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { loadSelectorManifest, selectorsFor } = require('./ui-selector-manifest');
+
 export type UiResource = Record<string, unknown> & {
   management_mode?: string;
   name?: string;
@@ -9,6 +12,12 @@ export type UiPlan = {
   action: 'ensure';
   url: string;
   fields: Record<string, unknown>;
+  selectors?: {
+    page: string;
+    form: string;
+    submit: string;
+    fields: Record<string, string>;
+  };
 };
 
 type AdapterOptions = {
@@ -31,7 +40,11 @@ abstract class BaseUiAdapter {
       return plan;
     }
 
-    throw new Error('Live UI apply is not implemented; record stable WHMCS selectors before enabling it.');
+    const manifest = loadSelectorManifest();
+    return {
+      ...plan,
+      selectors: selectorsFor(manifest, plan.resourceType),
+    };
   }
 
   protected url(path: string): string {
