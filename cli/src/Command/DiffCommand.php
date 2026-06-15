@@ -4,6 +4,7 @@ namespace Whmcs\Command;
 
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
+use Whmcs\Adapter\ProductAdapter;
 use Whmcs\State\StateLoader;
 
 class DiffCommand
@@ -11,7 +12,7 @@ class DiffCommand
     /**
      * Compare desired state (YAML) with live state (WHMCS).
      * 
-     * Usage: php cli/bin/whmcs-state diff --env=<path> [--resource=all|settings|gateways]
+     * Usage: php cli/bin/whmcs-state diff --env=<path> [--resource=all|settings|gateways|products]
      */
     public static function run(string $envPath, string $whmcsRoot, string $resource = 'all'): int
     {
@@ -64,6 +65,23 @@ class DiffCommand
                     
                     if (!empty($diff['changed']) || !empty($diff['added']) || !empty($diff['removed'])) {
                         $diffs['gateways'] = $diff;
+                        $hasChanges = true;
+                    }
+                }
+            }
+
+            // Check Products
+            if ($resource === 'all' || $resource === 'products') {
+                echo "Comparing products...\n";
+                $productsFile = "$envPath/products.yaml";
+                if (file_exists($productsFile)) {
+                    $desiredProducts = StateLoader::normalizeProducts(StateLoader::parseFile($productsFile));
+                    $productAdapter = new ProductAdapter($apiClient);
+                    $liveProducts = $productAdapter->exportLive();
+                    $diff = $productAdapter->diff($desiredProducts ?? [], $liveProducts);
+
+                    if (!empty($diff['changed']) || !empty($diff['added']) || !empty($diff['removed'])) {
+                        $diffs['products'] = $diff;
                         $hasChanges = true;
                     }
                 }

@@ -4,6 +4,7 @@ namespace Whmcs\Command;
 
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
+use Whmcs\Adapter\ProductAdapter;
 use Whmcs\Adapter\ApplyResult;
 use Whmcs\State\StateLoader;
 
@@ -56,8 +57,10 @@ class ApplyCommand
             $liveState = ['timestamp_before' => date('c'), 'resources' => []];
             $settingsAdapter = new SettingsAdapter($apiClient);
             $gatewayAdapter = new GatewayAdapter($apiClient);
+            $productAdapter = new ProductAdapter($apiClient);
             $liveState['resources']['settings'] = $settingsAdapter->exportLive();
             $liveState['resources']['gateways'] = $gatewayAdapter->exportLive();
+            $liveState['resources']['products'] = $productAdapter->exportLive();
 
             // Gate 5: Load desired state
             $desiredState = self::loadDesiredState($envPath);
@@ -76,6 +79,10 @@ class ApplyCommand
 
             if (!empty($desiredState['gateways'])) {
                 $diffs['gateways'] = $gatewayAdapter->diff($desiredState['gateways'], $liveState['resources']['gateways'] ?? []);
+            }
+
+            if (!empty($desiredState['products'])) {
+                $diffs['products'] = $productAdapter->diff($desiredState['products'], $liveState['resources']['products'] ?? []);
             }
 
             // Show diff summary
@@ -127,6 +134,16 @@ class ApplyCommand
                 }
             }
 
+            if (!empty($diffs['products'])) {
+                $result = $productAdapter->apply($diffs['products']);
+                $results['products'] = $result;
+                echo ($result->success ? 'âœ“' : 'âœ—') . " Products: {$result->message}\n";
+                if (!$result->success) {
+                    error_log("Product apply failed: " . json_encode($result->errors));
+                    return 1;
+                }
+            }
+
             // Gate 8: Verify state after apply
             echo "\nVerifying state after apply...\n";
             $verifyResults = [];
@@ -147,6 +164,16 @@ class ApplyCommand
                 echo ($verify->valid ? '✓' : '✗') . " Gateways verified\n";
                 if (!$verify->valid) {
                     error_log("Gateway verification failed: {$verify->message}");
+                    return 1;
+                }
+            }
+
+            if (!empty($desiredState['products'])) {
+                $verify = $productAdapter->verify($desiredState['products']);
+                $verifyResults['products'] = $verify;
+                echo ($verify->valid ? 'âœ“' : 'âœ—') . " Products verified\n";
+                if (!$verify->valid) {
+                    error_log("Product verification failed: {$verify->message}");
                     return 1;
                 }
             }
@@ -187,7 +214,7 @@ class ApplyCommand
     {
         $count = 0;
         foreach ($diffs as $diff) {
-            $count += count($diff['changed'] ?? []) + count($diff['added'] ?? []);
+            $count += count($diff['changed'] ?? []) + count($diff['added'] ?? []) + count($diff['removed'] ?? []);
         }
         return $count;
     }
@@ -197,10 +224,12 @@ class ApplyCommand
         foreach ($diffs as $resource => $diff) {
             $changes = count($diff['changed'] ?? []);
             $additions = count($diff['added'] ?? []);
+            $removals = count($diff['removed'] ?? []);
             echo "  $resource: ";
             $parts = [];
             if ($changes > 0) $parts[] = "$changes modified";
             if ($additions > 0) $parts[] = "$additions added";
+            if ($removals > 0) $parts[] = "$removals removed";
             echo implode(', ', $parts) . "\n";
         }
     }
@@ -230,7 +259,7 @@ class ApplyCommand
             'environment' => $environment,
             'summary' => [
                 'resources_modified' => count($diffs),
-                'total_changes' => array_sum(array_map(fn($d) => count($d['changed'] ?? []) + count($d['added'] ?? []), $diffs)),
+                'total_changes' => array_sum(array_map(fn($d) => count($d['changed'] ?? []) + count($d['added'] ?? []) + count($d['removed'] ?? []), $diffs)),
                 'all_applied_successfully' => array_reduce($results, fn($c, $r) => $c && $r->success, true),
                 'all_verified' => array_reduce($verifyResults, fn($c, $v) => $c && $v->valid, true)
             ],

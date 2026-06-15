@@ -20,6 +20,11 @@ class StateLoader
             $state['gateways'] = self::normalizeGateways(self::parseFile($gatewaysFile));
         }
 
+        $productsFile = self::path($envPath, 'products.yaml');
+        if (file_exists($productsFile)) {
+            $state['products'] = self::normalizeProducts(self::parseFile($productsFile));
+        }
+
         return $state;
     }
 
@@ -73,6 +78,29 @@ class StateLoader
                 'visible' => (bool)($gateway['visible'] ?? false),
                 'settings' => $gateway['settings'] ?? [],
             ];
+        }
+
+        return $normalized;
+    }
+
+    public static function normalizeProducts(array $document): array
+    {
+        $products = $document['products'] ?? $document;
+        $normalized = [];
+
+        foreach ($products as $key => $product) {
+            if (!is_array($product)) {
+                continue;
+            }
+
+            $productKey = $product['key'] ?? (is_string($key) ? $key : null);
+            if ($productKey === null || $productKey === '') {
+                continue;
+            }
+
+            $normalized[$productKey] = $product;
+            $normalized[$productKey]['slug'] = $product['slug'] ?? $productKey;
+            unset($normalized[$productKey]['key']);
         }
 
         return $normalized;

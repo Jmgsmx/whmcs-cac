@@ -62,8 +62,32 @@ class StateLoaderTest extends TestCase
 
         $this->assertArrayHasKey('settings', $state);
         $this->assertArrayHasKey('gateways', $state);
+        $this->assertArrayHasKey('products', $state);
         $this->assertSame('JMGS Hosting', $state['settings']['CompanyName']);
         $this->assertArrayHasKey('banktransfer', $state['gateways']);
         $this->assertArrayHasKey('stripe', $state['gateways']);
+        $this->assertArrayHasKey('shared-starter', $state['products']);
+        $this->assertSame('shared-starter', $state['products']['shared-starter']['slug']);
+    }
+
+    public function testNormalizeProductsConvertsListToProductMap(): void
+    {
+        $products = StateLoader::normalizeProducts([
+            'products' => [
+                [
+                    'key' => 'shared-starter',
+                    'management_mode' => 'api',
+                    'name' => 'Shared Starter',
+                ],
+            ],
+        ]);
+
+        $this->assertSame([
+            'shared-starter' => [
+                'management_mode' => 'api',
+                'name' => 'Shared Starter',
+                'slug' => 'shared-starter',
+            ],
+        ], $products);
     }
 }

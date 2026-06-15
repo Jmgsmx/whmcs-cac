@@ -79,7 +79,7 @@ management_mode: api  # One of: api, ui, filesystem, manual_seeded, sql_emergenc
 Priority: `api` adapters first
 - SettingsAdapter ✅
 - GatewayAdapter ✅
-- ProductAdapter (pending)
+- ProductAdapter (initial: GetProducts export/diff/verify, AddProduct create-only when WHMCS IDs are resolved)
 - RegistrarAdapter (pending)
 - TldAdapter (pending)
 

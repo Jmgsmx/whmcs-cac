@@ -4,13 +4,14 @@ namespace Whmcs\Command;
 
 use Whmcs\Adapter\SettingsAdapter;
 use Whmcs\Adapter\GatewayAdapter;
+use Whmcs\Adapter\ProductAdapter;
 
 class ExportLiveCommand
 {
     /**
      * Export live state from WHMCS into JSON snapshot.
      * 
-     * Usage: php cli/bin/whmcs-state export-live --env=<path> [--resource=all|settings|gateways]
+     * Usage: php cli/bin/whmcs-state export-live --env=<path> [--resource=all|settings|gateways|products]
      */
     public static function run(string $whmcsRoot, string $resource = 'all'): int
     {
@@ -41,6 +42,13 @@ class ExportLiveCommand
                 echo "Exporting payment gateways...\n";
                 $gatewayAdapter = new GatewayAdapter($apiClient);
                 $liveState['resources']['gateways'] = $gatewayAdapter->exportLive();
+            }
+
+            // Export Products
+            if ($resource === 'all' || $resource === 'products') {
+                echo "Exporting products...\n";
+                $productAdapter = new ProductAdapter($apiClient);
+                $liveState['resources']['products'] = $productAdapter->exportLive();
             }
 
             // Write to state/live/snapshots/{timestamp}.json
